@@ -89,14 +89,20 @@ sudo rm -f /etc/pam.d/oms-fprint-test        # 清理
 
 ### 4.2 生产可用：登录 / 解锁 / sudo（含 GDM 51 限制）
 
-本仓库的 `install.sh` 会一次性装好驱动、fprintd 与 PAM 规则。要点：
+本仓库的 `install.sh` 会一次性装好驱动、fprintd 与 PAM 规则，并**自动识别显示管理器**：
 
-- **GDM 51 限制**：上游 GDM 51 移除了「指纹登录」，指纹只用于重新认证
+- **GDM ≥ 51**：上游把「指纹登录」移除了，指纹只用于重新认证
   （gnome-shell greeter 里 `_connectFingerprintManager()` 有 `if (!this._reauthOnly) return;`）。
-  本仓库用 `/etc/pam.d/gdm-password` 覆盖（`auth sufficient pam_fprintd.so`）让 GDM
-  登录时也能先按指纹、再回落密码。模板见 `tools/gdm-password.pam`。
+  `install.sh` 会从厂商文件 `/usr/lib/pam.d/gdm-password` 派生一个 `/etc/pam.d/gdm-password`
+  覆盖（插入 `auth sufficient pam_fprintd.so`），于是登录时也能先按指纹、再回落密码。
+- **GDM ≤ 50**：指纹登录是**原生**的，`install.sh` 不覆盖、保持原样。
+- **SDDM / LightDM**：`install.sh` 会往 `/etc/pam.d/sddm`（或 `lightdm`）插入指纹规则。
 - **恢复**：`tools/oms-pam-restore.sh`（装到 `/usr/local/bin/oms-pam-restore`）。
   登录出问题时在 TTY（`Ctrl+Alt+F3`）里 `sudo oms-pam-restore` 即可恢复纯密码登录。
+
+解锁方面：GNOME 锁屏走同一服务的重新认证（已覆盖）；KDE Plasma 6 的 `kscreenlocker`
+自带 `/etc/pam.d/kde-fingerprint`，开箱可用。
+
 - **复用旧模板**：`tools/oms-claim.c` 把芯片里已有的槽位登记给 fprintd
   （芯片会拒绝重复录入，故旧模板只能这样复用）；`tools/oms-ident.c` 做全库识别、
   报命中槽位。

@@ -53,21 +53,39 @@ sudo ./install.sh
 | 1 | 安装构建依赖（meson / ninja / gobject-introspection / glib2-devel） |
 | 2 | 构建并安装 **libfprint-omsmoc**（= libfprint + omsmoc 驱动） |
 | 3 | 安装 **fprintd** |
-| 4 | 写 udev 规则（放行访问 + **常供电**，该设备扛不住 autosuspend） |
-| 5 | 配 PAM：**GDM 登录**、**锁屏解锁**、**sudo** 都能用指纹 |
-| 6 | 编译并安装辅助工具 `oms-smoke` / `oms-claim` / `oms-ident` |
+| 4 | 编译并安装辅助工具 `oms-smoke` / `oms-claim` / `oms-ident` |
+| 5 | 写 udev 规则（放行访问 + **常供电**，该设备扛不住 autosuspend） |
+| 6 | 配 PAM：**登录**（自动识别 GDM/SDDM/LightDM）、**锁屏解锁**、**sudo** |
 | 7 | 安装恢复脚本 `oms-pam-restore` |
 
 可选参数：
 
 ```bash
 sudo ./install.sh --no-pam      # 只装驱动+fprintd，不动 PAM
-sudo ./install.sh --no-gdm      # 跳过 GDM 登录覆盖（保留 sudo 指纹）
+sudo ./install.sh --no-login    # 跳过显示管理器登录规则（保留 sudo 指纹）
+sudo ./install.sh --no-sudo     # 跳过 sudo 指纹
+sudo ./install.sh --dm=sddm     # 强制指定显示管理器（gdm|sddm|lightdm|none）
+sudo ./install.sh --force-gdm   # 即便 GDM ≤50 也强制加登录覆盖
 sudo ./install.sh --build-only  # 只编译出包，不安装
 sudo ./install.sh --no-deps     # 假设依赖已就绪
 ```
 
 脚本可重复运行（幂等）。
+
+### 2.1 显示管理器兼容性（脚本自动处理）
+
+| 显示管理器 | 脚本行为 |
+|---|---|
+| **GDM ≥ 51** | 指纹登录被上游移除 → 脚本派生 `/etc/pam.d/gdm-password` 覆盖，登录时可先用指纹 |
+| **GDM ≤ 50** | 指纹登录**原生支持** → 脚本**不动**登录 PAM，保持原样 |
+| **SDDM** | 往 `/etc/pam.d/sddm` 插入指纹规则 |
+| **LightDM** | 往 `/etc/pam.d/lightdm` 插入指纹规则 |
+| **其他/未知** | 给出提示，需手动按其 PAM 服务配置 |
+
+> 若脚本识别不到你的显示管理器（少见），可用 `--dm=gdm|sddm|lightdm` 手动指定。
+
+**锁屏解锁**：GNOME 走同一服务的重新认证（脚本已覆盖）；KDE Plasma 6 的
+`kscreenlocker` 自带 `/etc/pam.d/kde-fingerprint`，开箱即用。
 
 ---
 
@@ -122,19 +140,31 @@ fprintd-list                         # 3. 确认 fprintd 已认领
 
 ---
 
-## 6. 关于 GDM 登录指纹（重点）
+## 6. 关于登录界面（各显示管理器）
 
-**GNOME 51 的上游 GDM 移除了「指纹登录」**：指纹只允许用于「重新认证」
-（锁屏解锁等），不能再单独用来登录。这是 GDM 官方 51.0 版本说明里的原话。
+| 显示管理器 | 指纹登录 | 说明 |
+|---|---|---|
+| **Y** GDM 51 及以上 | 上游移除，需本项目的 PAM 覆盖 | GDM 51.0 起指纹只用于「重新认证」（解锁等），不能再单独登录 |
+| **Y** GDM 50 及以下 | **原生支持** | 登录界面自带「指纹」选项，无需任何改动 |
+| **Y** SDDM | 本项目插入 `/etc/pam.d/sddm` | KDE 常用；注意 KWallet 仍需密码解锁 |
+| **Y** LightDM | 本项目插入 `/etc/pam.d/lightdm` | — |
 
-本项目的 `install.sh` 用 **PAM 层覆盖**绕过了这个限制：
-在 `/etc/pam.d/gdm-password` 顶部放了 `auth sufficient pam_fprintd.so`，
-于是 GDM 走密码流程时**会先让你按指纹**，按了就走，没按就回落到密码。
+`install.sh` 会**自动识别**你的显示管理器并做对应处理；GDM ≤50 时**不做任何覆盖**。
 
-代价（GDM 官方砍它的原因）：**用指纹登录时，gnome-keyring 拿不到密码**，
-之后可能弹窗要你输一次钥匙串密码。若你不在意，这样做没问题。
+### GDM 51 的覆盖是怎么做的
 
-如果不想动 GDM 登录（只用锁屏/sudo），安装时加 `--no-gdm`。
+在 `/etc/pam.d/gdm-password` 顶部放 `auth sufficient pam_fprintd.so`，于是 GDM 走密码
+流程时会**先让你按指纹**，按了就走，没按就回落到密码。
+
+代价（GDM 官方砍它的原因）：**用指纹登录时 gnome-keyring 拿不到密码**，
+之后可能弹窗要你输一次钥匙串密码。在意的话安装时加 `--no-login`，
+只用锁屏/sudo 的指纹。
+
+### GNOME 51 上游原文（供参考）
+
+> in GNOME 51, we've changed the behavior of the fingerprint sensor to only
+> function during re-authentication. The user can no longer log into their
+> system with a fingerprint sensor alone.
 
 ---
 

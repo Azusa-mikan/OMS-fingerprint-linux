@@ -87,7 +87,6 @@ driver/                    the libfprint driver and its tooling
   tools/oms-smoke.c        bring-up tool (info/verify/identify/enroll/list/delete/clear)
   tools/oms-claim.c        register chip templates with fprintd (reuse Windows prints)
   tools/oms-ident.c        identify against all chip templates, report the slot
-  tools/gdm-password.pam   GDM 51 login override (fingerprint + password fallback)
   tools/oms-pam-restore.sh one-command recovery if a login goes wrong
   tests/omsmoc/            umockdev regression test + sanitized recorded traffic
   tests/sanitize-capture.py scrub device identifying data from a new recording
