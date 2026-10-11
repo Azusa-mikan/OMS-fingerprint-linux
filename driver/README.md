@@ -109,6 +109,9 @@ sudo rm -f /etc/pam.d/oms-fprint-test        # 清理
 
 完整图文步骤见仓库根目录的 [`README.zh-CN.md`](../README.zh-CN.md)。
 
+> **测试范围**：仅 Arch Linux + GNOME 51/GDM 51 + sudo/锁屏 实测通过；
+> GDM ≤50、GDM 52+、SDDM、LightDM、其它发行版/桌面均**未测试**。
+
 ## 5. 已实现的功能与对应命令
 
 | 功能 | 命令 | 说明 |

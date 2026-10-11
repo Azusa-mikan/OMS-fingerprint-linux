@@ -15,6 +15,26 @@ $ fprintd-verify          → Verify result: verify-match (done)
 $ meson test omsmoc       → 1/1 drivers+custom - libfprint:omsmoc OK
 ```
 
+> ### ⚠️ Tested scope — read this first
+>
+> Everything in this repository was tested on **one machine only**:
+>
+> | | |
+> |---|---|
+> | Distribution | **Arch Linux** ✅ |
+> | Desktop / display manager | **GNOME 51 + GDM 51** ✅ |
+> | **sudo** | ✅ tested |
+> | Screen unlock (GNOME) | ✅ tested |
+> | fprintd enroll / verify | ✅ tested |
+> | GDM ≤ 50, GDM 52+ | ❌ **untested** |
+> | **SDDM / LightDM** | ❌ **untested** (logic reviewed, no hardware run) |
+> | Other distributions (Debian/Fedora/…) | ❌ **untested** (installer targets Arch/pacman) |
+> | Other desktops (KDE Plasma, …) | ❌ **untested** |
+> | Other models / firmware revisions | ❌ untested (only `bcdDevice 0x0200`) |
+>
+> Untested does **not** mean broken, but there is **no guarantee**. Reports from
+> other setups are very welcome.
+
 ## Quick install (Arch Linux)
 
 One command installs the driver, `fprintd`, the udev rule and the PAM rules so
