@@ -132,6 +132,10 @@ fprintd-delete                        # 删除
 映射存在它自己的数据库里，不在芯片里）。芯片又拒绝重复录入，所以要用工具把这些
 **已有模板**登记给 fprintd：
 
+> 下面的 `oms-smoke` / `oms-claim` / `oms-ident` 由 `install.sh` 编译安装到
+> `/usr/local/bin`。**若提示 `command not found`，说明还没跑过安装脚本**——
+> 先执行一次 `sudo ./install.sh` 即可。
+
 ```bash
 oms-smoke list                       # 1. 看看芯片里有哪些槽位（Slot 0/1/2 ...）
 sudo oms-claim <用户名> 0:right-index-finger 2:right-middle-finger
