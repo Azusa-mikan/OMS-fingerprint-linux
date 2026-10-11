@@ -305,4 +305,11 @@ If a login screen ever stops accepting your password:
     * sudo oms-pam-restore --all  also reverts the sudo change.
 
 Remove everything later with:  sudo ./uninstall.sh
+
+$(printf '\033[1;33mNote on testing\033[0m')
+  Verified on ONE machine only: Arch Linux + GNOME 51 / GDM 51, for login,
+  screen unlock and sudo. Everything else is UNTESTED — GDM <= 50, GDM 52+,
+  SDDM, LightDM, other distributions and desktops, and other firmware
+  revisions. Untested does not mean broken, but there is no guarantee; if
+  your setup differs and something fails, please report it upstream.
 EOF
