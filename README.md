@@ -114,7 +114,7 @@ driver/                    the libfprint driver and its tooling
   libfprint-oms.patch      same changes as a plain patch for a local build tree
   setup.sh                 fetch libfprint, apply patch, build, run the test
   README.md                build, debug, test, PAM and device notes
-aur/                       Arch package (libfprint + this driver) as a stop-gap
+aur/                       Arch package sources used by install.sh (libfprint + driver)
 LICENSE                    LGPL-2.1-or-later
 ```
 

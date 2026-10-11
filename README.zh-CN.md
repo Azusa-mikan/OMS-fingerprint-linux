@@ -226,12 +226,12 @@ echo 1 | sudo tee /sys/bus/usb/devices/1-4/authorized
 
 ### 7.4 升级系统后指纹失效
 
-系统的 `libfprint` 一升级就会和 `libfprint-omsmoc` 冲突。重装本包即可：
+系统的 `libfprint` 一升级就会和 `libfprint-omsmoc` 冲突。**重新跑一次安装脚本**即可
+（它会重新构建并装回）：
 
 ```bash
-cd ~/Projects/oms-fingerprint-linux/aur/libfprint-omsmoc
-makepkg -fC --noconfirm
-yes | sudo pacman -U libfprint-omsmoc-*.pkg.tar.zst
+cd ~/Projects/oms-fingerprint-linux
+sudo ./install.sh
 ```
 
 或在 `/etc/pacman.conf` 里用 `IgnorePkg` 钉住 `libfprint`，避免被动升级。
@@ -248,26 +248,7 @@ sudo pacman -S libfprint       # 还原发行版 libfprint
 
 ---
 
-## 9. 手动安装（AUR 包路线）
-
-不用一键脚本时，也可手动构建 AUR 包：
-
-```bash
-cd aur/libfprint-omsmoc
-makepkg -fC                    # 再次构建必须加 -C，否则 prepare() 因补丁已应用而失败
-yes | sudo pacman -U libfprint-omsmoc-*.pkg.tar.zst
-sudo pacman -S fprintd
-sudo systemctl restart fprintd # 或等 D-Bus 激活
-```
-
-包装细节（踩过的坑）：
-
-- `provides` 必须含 soname `libfprint-2.so=2-64`，否则 fprintd 依赖不满足。
-- `conflicts=('libfprint>=1.90')` 只与 2.x 冲突，保留遗留 `libfprint-1`（`fingerprint-gui` 依赖它）。
-
----
-
-## 10. 手动编译驱动（其他发行版 / 开发）
+## 9. 手动编译驱动（其他发行版 / 开发）
 
 ```bash
 cd driver
@@ -289,7 +270,7 @@ pixman nss gobject-introspection umockdev`。
 
 ---
 
-## 11. 协议速查（逆向结论）
+## 10. 协议速查（逆向结论）
 
 给想深入的人：
 
@@ -312,7 +293,7 @@ pixman nss gobject-introspection umockdev`。
 
 ---
 
-## 12. 许可与合规
+## 11. 许可与合规
 
 - 本仓库代码：**LGPL-2.1-or-later**（与 libfprint 一致，便于上游合并）。
 - 这是对**自己拥有的硬件**做的互操作性逆向；仓库**不含**厂商二进制 / 固件 / 原始抓包。
@@ -321,10 +302,9 @@ pixman nss gobject-introspection umockdev`。
 
 ---
 
-## 13. 参考
+## 12. 参考
 
 - 驱动本体：`driver/omsmoc.c`（文件头有协议与实现说明）
 - 构建与测试：`driver/README.md`
-- AUR 打包：`aur/README.md`
 - 上游 MR 材料：`driver/upstream/`
 - 英文说明：`README.md`
