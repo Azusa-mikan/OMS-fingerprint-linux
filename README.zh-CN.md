@@ -32,8 +32,8 @@
 ## 0. 一眼总览
 
 ```
-git clone https://github.com/Azusa-mikan/OMS-fingerprint-linux.git
-cd oms-fingerprint-linux
+git clone https://github.com/Azusa-mikan/OMS-fingerprint-linux-setup.git
+cd OMS-fingerprint-linux-setup
 sudo ./install.sh          # 一键：装驱动 + fprintd + udev + PAM + 工具
 fprintd-enroll             # 录入一根手指（按提示按 6 次）
 # 重新登录，即可用指纹
@@ -61,8 +61,8 @@ sudo oms-pam-restore       # 恢复 GDM 登录为纯密码（立即生效）
 ## 2. 一键安装
 
 ```bash
-git clone https://github.com/Azusa-mikan/OMS-fingerprint-linux.git
-cd oms-fingerprint-linux
+git clone https://github.com/Azusa-mikan/OMS-fingerprint-linux-setup.git
+cd OMS-fingerprint-linux-setup
 sudo ./install.sh
 ```
 
@@ -230,7 +230,7 @@ echo 1 | sudo tee /sys/bus/usb/devices/1-4/authorized
 （它会重新构建并装回）：
 
 ```bash
-cd ~/Projects/oms-fingerprint-linux
+cd OMS-fingerprint-linux-setup     # 你克隆下来的目录
 sudo ./install.sh
 ```
 

@@ -41,8 +41,8 @@ One command installs the driver, `fprintd`, the udev rule and the PAM rules so
 that a finger works for **login, lock-screen unlock and sudo**:
 
 ```bash
-git clone https://github.com/Azusa-mikan/OMS-fingerprint-linux.git
-cd oms-fingerprint-linux
+git clone https://github.com/Azusa-mikan/OMS-fingerprint-linux-setup.git
+cd OMS-fingerprint-linux-setup
 sudo ./install.sh          # driver + fprintd + udev + PAM + helper tools
 fprintd-enroll             # press/lift a finger 6 times
 # log back in and use the fingerprint
