@@ -15,6 +15,34 @@ $ fprintd-verify          → Verify result: verify-match (done)
 $ meson test omsmoc       → 1/1 drivers+custom - libfprint:omsmoc OK
 ```
 
+## Quick install (Arch Linux)
+
+One command installs the driver, `fprintd`, the udev rule and the PAM rules so
+that a finger works for **login, lock-screen unlock and sudo**:
+
+```bash
+git clone <this repository>
+cd oms-fingerprint-linux
+sudo ./install.sh          # driver + fprintd + udev + PAM + helper tools
+fprintd-enroll             # press/lift a finger 6 times
+# log back in and use the fingerprint
+```
+
+If a fingerprint login ever goes wrong, recover from a text console
+(`Ctrl+Alt+F3`, log in with your password) with:
+
+```bash
+sudo oms-pam-restore       # back to password-only login, effective immediately
+```
+
+Remove everything again with `sudo ./uninstall.sh`.
+
+Ready-made Windows templates already stored in the chip can be reused instead
+of re-enrolling (the chip rejects duplicates) with `oms-claim`; see the guide.
+
+📖 **完整中文指南 → [`README.zh-CN.md`](./README.zh-CN.md)**
+(includes the GNOME 51 / GDM 51 login limitation and the workaround.)
+
 ## The device
 
 | | |
@@ -50,10 +78,17 @@ timing rules and the frame checksum) are documented in
 ## Repository layout
 
 ```
-README.md                  this file
+README.md                  this file (English)
+README.zh-CN.md            完整中文指南 (Chinese guide)
+install.sh                 one-click installer (driver + fprintd + udev + PAM)
+uninstall.sh               reverses install.sh
 driver/                    the libfprint driver and its tooling
   omsmoc.c/.h              driver source (upstream style, fpi_device + fpi_ssm)
   tools/oms-smoke.c        bring-up tool (info/verify/identify/enroll/list/delete/clear)
+  tools/oms-claim.c        register chip templates with fprintd (reuse Windows prints)
+  tools/oms-ident.c        identify against all chip templates, report the slot
+  tools/gdm-password.pam   GDM 51 login override (fingerprint + password fallback)
+  tools/oms-pam-restore.sh one-command recovery if a login goes wrong
   tests/omsmoc/            umockdev regression test + sanitized recorded traffic
   tests/sanitize-capture.py scrub device identifying data from a new recording
   upstream/                ready-to-submit upstream patch, steps and issue/request text

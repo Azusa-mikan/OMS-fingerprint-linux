@@ -87,6 +87,22 @@ sudo rm -f /etc/pam.d/oms-fprint-test        # 清理
 > 配置系统级 `login`/`sudo`（`system-auth`）前请先保留一个 root shell 或 TTY 兜底，
 > 避免指纹不可用时把自己锁在外面。
 
+### 4.2 生产可用：登录 / 解锁 / sudo（含 GDM 51 限制）
+
+本仓库的 `install.sh` 会一次性装好驱动、fprintd 与 PAM 规则。要点：
+
+- **GDM 51 限制**：上游 GDM 51 移除了「指纹登录」，指纹只用于重新认证
+  （gnome-shell greeter 里 `_connectFingerprintManager()` 有 `if (!this._reauthOnly) return;`）。
+  本仓库用 `/etc/pam.d/gdm-password` 覆盖（`auth sufficient pam_fprintd.so`）让 GDM
+  登录时也能先按指纹、再回落密码。模板见 `tools/gdm-password.pam`。
+- **恢复**：`tools/oms-pam-restore.sh`（装到 `/usr/local/bin/oms-pam-restore`）。
+  登录出问题时在 TTY（`Ctrl+Alt+F3`）里 `sudo oms-pam-restore` 即可恢复纯密码登录。
+- **复用旧模板**：`tools/oms-claim.c` 把芯片里已有的槽位登记给 fprintd
+  （芯片会拒绝重复录入，故旧模板只能这样复用）；`tools/oms-ident.c` 做全库识别、
+  报命中槽位。
+
+完整图文步骤见仓库根目录的 [`README.zh-CN.md`](../README.zh-CN.md)。
+
 ## 5. 已实现的功能与对应命令
 
 | 功能 | 命令 | 说明 |
