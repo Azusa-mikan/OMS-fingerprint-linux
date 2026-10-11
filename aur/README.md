@@ -42,24 +42,6 @@ yes | sudo pacman -U libfprint-omsmoc-*.pkg.tar.zst
 > 本包关闭了 gtk-doc 文档（`-Ddoc=false`），其余文件与发行版包一致
 > （lib/头文件/GIR/typelib/pkgconfig/udev 规则/hwdb/metainfo）。
 
-## 上传到 AUR
-
-AUR 账号注册是即时的（不需要像 freedesktop 那样等审批），只需加 SSH key：
-
-```bash
-# 1) 注册并添加 SSH key：https://aur.archlinux.org/ （Account → My Account → SSH Public Key）
-# 2) 首次检出（包名需在 AUR 上尚未被占用；若被占用请改名，如 libfprint-omsmoc-git）
-git clone ssh://aur@aur.archlinux.org/libfprint-omsmoc.git
-cd libfprint-omsmoc
-cp /path/to/OMS-fingerprint-linux/aur/libfprint-omsmoc/{PKGBUILD,.SRCINFO,omsmoc-driver.patch} .
-git add PKGBUILD .SRCINFO omsmoc-driver.patch
-git commit -m "Initial import: libfprint with the OMS match-on-chip driver"
-git push
-```
-
-上传后可在 <https://aur.archlinux.org/packages?K=libfprint-omsmoc> 查看，
-并在 libfprint 的 Driver Request issue 里附上该链接（对用户更友好的一条安装路径）。
-
 ## 已验证（2026-09-12，本机 Arch）
 
 - `makepkg -fC` 构建通过（1.94.100-1）；包内 `libfprint-2.so.2.0.0` 含 `FpiDeviceOmsMoc`，
